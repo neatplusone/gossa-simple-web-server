@@ -51,7 +51,7 @@ release images are pushed to [dockerhub](https://hub.docker.com/r/pldubouilh/gos
 ```sh
 # pull from dockerhub and run
 % mkdir ~/LocalDirToShare
-% sudo docker run -v ~/LocalDirToShare:/shared -p 8001:8001 pldubouilh/gossa
+% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
 ```
 
 in a do-one-thing-well mindset, HTTPS and authentication has been left to middlewares and proxies. [sample caddy configs](https://github.com/pldubouilh/gossa/blob/master/support/) are available to quickly setup multi users setups along with https.

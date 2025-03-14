@@ -43,8 +43,8 @@ type pageTemplate struct {
 	RowsFolders []rowTemplate
 }
 
-var host = flag.String("h", "127.0.0.1", "host to listen to")
-var port = flag.String("p", "8001", "port to listen to")
+var host = flag.String("h", "0.0.0.0", "host to listen to")
+var port = flag.String("p", "8000", "port to listen to")
 var extraPath = flag.String("prefix", "/", "url prefix at which gossa can be reached, e.g. /gossa/ (slashes of importance)")
 var symlinks = flag.Bool("symlinks", false, "follow symlinks \033[4mWARNING\033[0m: symlinks will by nature allow to escape the defined path (default: false)")
 var verb = flag.Bool("verb", false, "verbosity")

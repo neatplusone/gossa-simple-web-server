@@ -26,12 +26,12 @@ services:
     #       memory: 250m
     #       pids: 1024
     ports:
-      - 8001:8001
+      - 8000:8000
     volumes:
       - ~/to-share:/shared
 #    labels:
 #      - "traefik.enable=true"
-#      - "traefik.port=8001"
+#      - "traefik.port=8000"
 #      - "traefik.backend=gossa"
 #      - "traefik.frontend.rule=Host:${GOSSA}.${DOMAIN}"
 

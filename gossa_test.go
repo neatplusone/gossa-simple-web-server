@@ -372,17 +372,17 @@ func doTestReadonly(t *testing.T, url string) {
 
 func TestNormal(t *testing.T) {
 	fmt.Println("========== testing normal path ============")
-	doTestRegular(t, "http://127.0.0.1:8001/", false)
+	doTestRegular(t, "http://127.0.0.1:8000/", false)
 }
 
 func TestExtra(t *testing.T) {
 	fmt.Println("========== testing extras options ============")
-	doTestRegular(t, "http://127.0.0.1:8001/fancy-path/", true)
+	doTestRegular(t, "http://127.0.0.1:8000/fancy-path/", true)
 }
 
 func TestRo(t *testing.T) {
 	fmt.Println("========== testing read only ============")
-	doTestReadonly(t, "http://127.0.0.1:8001/")
+	doTestReadonly(t, "http://127.0.0.1:8000/")
 }
 
 func TestRunMain(t *testing.T) {

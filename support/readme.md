@@ -21,10 +21,10 @@ the master branch is automatically built and pushed to [dockerhub](https://hub.d
 ```sh
 # pull from dockerhub and run
 % mkdir ~/LocalDirToShare
-% sudo docker run -v ~/LocalDirToShare:/shared -p 8001:8001 pldubouilh/gossa
+% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
 
 # options are settable through env. variabes. all the options are the build.Dockerfile
-% sudo docker run -e PREFIX="/gossa/" -v ~/LocalDirToShare:/shared -p 8001:8001 pldubouilh/gossa
+% sudo docker run -e PREFIX="/gossa/" -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
 ```
 
 if you prefer building the image yourself :
@@ -33,7 +33,7 @@ if you prefer building the image yourself :
 # build gossa within a build container, needs to be ran within the sources, ../ from here, and run
 % mkdir ~/LocalDirToShare
 % docker build -t gossa -f support/build.Dockerfile .
-% sudo docker run -v ~/LocalDirToShare:/shared -p 8001:8001 gossa
+% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 gossa
 ```
 
 a docker-compose example image is also provided. running docker compose should be straightforward : `docker-compose up .` have a look in `docker-compose.yml` for further configuration.
@@ -57,7 +57,7 @@ This sample Caddyfile will
   myserver.com
   
   # proxy regular and read only instance
-  proxy /   127.0.0.1:8001
+  proxy /   127.0.0.1:8000
   proxy /ro 127.0.0.1:8002 { without /ro }
   
   # reroute non-root user to read-only
@@ -93,7 +93,7 @@ basic_auth {
 
 # proxy regular and read only instance
 handle @isroot {
-  reverse_proxy 127.0.0.1:8001
+  reverse_proxy 127.0.0.1:8000
 }
 # route non-root user to read only instance
 handle {
@@ -108,7 +108,7 @@ then simply start the 2 gossa instances, and caddy
 % ./gossa -ro=true -p 8002 ~/folder &
 
 # start an instance with access to hidden files
-% ./gossa -k=false  -p 8001 ~/folder &
+% ./gossa -k=false  -p 8000 ~/folder &
 
 # start caddy
 % ./caddy
@@ -129,7 +129,7 @@ This sample Caddyfile will
   ```sh
   myserver.com
   
-  proxy /user1 127.0.0.1:8001 { without /user1 }
+  proxy /user1 127.0.0.1:8000 { without /user1 }
   proxy /user2 127.0.0.1:8002 { without /user2 }
   
   basicauth / user1 passworduser1
@@ -161,7 +161,7 @@ basic_auth {
   vars {http.auth.user.id} user1 
 }
 handle @user1auth {
-  reverse_proxy 127.0.0.1:8001
+  reverse_proxy 127.0.0.1:8000
 }
 
 @user2auth {
@@ -180,7 +180,7 @@ start 2 gossa instances, and caddy
 % ln -s /path/shared test/user2
 
 # start gossa & caddy
-% ./gossa -p 8001 -symlinks=true test/user1 &
+% ./gossa -p 8000 -symlinks=true test/user1 &
 % ./gossa -p 8002 -symlinks=true test/user2 &
 % ./caddy
 ```
