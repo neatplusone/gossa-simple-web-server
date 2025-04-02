@@ -136,6 +136,12 @@ td.file-size {
   width: 30px;
 }
 
+td.btn-sws {
+  text-align: right;
+  padding-left: 1em;
+  width: 30px;
+}
+
 td.display-name {
   padding-left: .5em;
   text-overflow: ellipsis;

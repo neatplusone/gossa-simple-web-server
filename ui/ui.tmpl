@@ -52,7 +52,7 @@
     <div id="drop-grid"></div>
     <input type="file" id="clickupload" style="display:none"/>
 
-    <h1 onclick="return titleClick(event)">.{{.Title}}</h1>
+    <h1 onclick="return titleClick(event)">.{{.Title}}</h1> <!--[Root] TODO-->
 
     <div id="icHolder">
         {{if not .Ro}}
@@ -72,24 +72,24 @@
     <table id="linkTable">
     {{range .RowsFolders}}
         <tr>
+            <td class="arrow"><div class="arrow-icon"></div></td>
             <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
-            <td class="btn-ren" onclick="return rename(event)"><code>[REN]</code></td>
+            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
             <td class="mod-size"><code>1900-01-01</code></td>
             <td class="file-size"><code>{{.Size}}</code></td>
-            <td class="btn-del" onclick="return rm(event)"><code>[DEL]</code></td>
-            <td class="arrow"><div class="arrow-icon"></div></td>
-            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
+            <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
+            <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
         </tr>
     {{end}}
     {{range .RowsFiles}}
         <tr>
+            <td class="arrow"><div class="arrow-icon"></div></td>
             <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
-            <td class="btn-ren" onclick="return rename(event)"><code>[REN]</code></td>
+            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
             <td class="mod-size"><code>1900-01-01</code></td>
             <td class="file-size"><code>{{.Size}}</code></td>
-            <td class="btn-del" onclick="return rm(event)"><code>[DEL]</code></td>
-            <td class="arrow"><div class="arrow-icon"></div></td>
-            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
+            <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
+            <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
         </tr>
     {{end}}
     </table>

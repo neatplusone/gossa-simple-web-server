@@ -7,7 +7,7 @@ function cancelDefault (e) {
 }
 
 const warningMsg = () => 'Leaving will interrupt transfer?\n'
-const rmMsg = () => !confirm('Remove file?\n')
+const rmMsg = () => !confirm('Remove file? [todo:filename]\n')
 const ensureMove = () => !confirm('move items?')
 const isRo = () => window.ro
 

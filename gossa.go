@@ -99,6 +99,7 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 	title := "/" + strings.TrimPrefix(path, *extraPath)
 	p := pageTemplate{}
 	if path != *extraPath {
+		//p.RowsFolders = append(p.RowsFolders, rowTemplate{"[Up]", "../", "", "folder"}) // TODO FIX: trigers browser download of [Up].html instead of navigating
 		p.RowsFolders = append(p.RowsFolders, rowTemplate{"../", "../", "", "folder"})
 	}
 	p.ExtraPath = template.HTML(html.EscapeString(*extraPath))
