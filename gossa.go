@@ -26,13 +26,15 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type rowTemplate struct {
-	Name string
-	Href template.URL
-	Size string
-	Ext  string
+	Name    string
+	Href    template.URL
+	Size    string
+	Ext     string
+	ModTime string // Added for modification time display and sorting
 }
 
 type pageTemplate struct {
@@ -87,6 +89,12 @@ func humanize(bytes int64) string {
 	}
 }
 
+// Format time as ISO8601-like format (YYYY-MM-DD)
+func formatTime(t time.Time) string {
+	return t.Format("2006-01-02")
+}
+
+// Modify the replyList function to populate the ModTime field
 func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path string) {
 	files, err := os.ReadDir(fullPath)
 	check(err)
@@ -99,8 +107,8 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 	title := "/" + strings.TrimPrefix(path, *extraPath)
 	p := pageTemplate{}
 	if path != *extraPath {
-		//p.RowsFolders = append(p.RowsFolders, rowTemplate{"[Up]", "../", "", "folder"}) // TODO FIX: trigers browser download of [Up].html instead of navigating
-		p.RowsFolders = append(p.RowsFolders, rowTemplate{"../", "../", "", "folder"})
+		// Parent directory entry
+		p.RowsFolders = append(p.RowsFolders, rowTemplate{"../", "../", "", "folder", ""})
 	}
 	p.ExtraPath = template.HTML(html.EscapeString(*extraPath))
 	p.Ro = *ro
@@ -128,13 +136,19 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 			href = strings.Replace(href, "/", "", 1)
 		}
 
+		// Format the modification time
+		modTime := formatTime(el.ModTime())
+
 		if el.IsDir() {
-			row := rowTemplate{name + "/", template.URL(href), "", "folder"}
+			row := rowTemplate{name + "/", template.URL(href), "", "folder", modTime}
 			p.RowsFolders = append(p.RowsFolders, row)
 		} else {
 			sl := strings.Split(name, ".")
-			ext := strings.ToLower(sl[len(sl)-1])
-			row := rowTemplate{name, template.URL(href), humanize(el.Size()), ext}
+			ext := ""
+			if len(sl) > 1 {
+				ext = strings.ToLower(sl[len(sl)-1])
+			}
+			row := rowTemplate{name, template.URL(href), humanize(el.Size()), ext, modTime}
 			p.RowsFiles = append(p.RowsFiles, row)
 		}
 	}
@@ -142,7 +156,7 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Add("Content-Encoding", "gzip")
-		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed) // BestSpeed is Much Faster than default - base on a very unscientific local test, and only ~30% larger (compression remains still very effective, ~6x)
+		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
 		check(err)
 		defer gz.Close()
 		tmpl.Execute(gz, p)

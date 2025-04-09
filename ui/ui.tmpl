@@ -11,11 +11,189 @@
 
     <title>{{.Title}}</title>
     <link href="data:image/svg+xml;base64,favicon_will_be_here" rel="icon" type="image/svg+xml" />
-    <style type="text/css">css_will_be_here</style>
+    <style type="text/css">
+        css_will_be_here
+        
+        /* Add styles for sorting headers */
+        .sort-header {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .sort-header:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sort-header.active {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .sort-icon {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            margin-left: 5px;
+            vertical-align: middle;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+        }
+        
+        .sort-asc .sort-icon {
+            border-bottom: 4px solid currentColor;
+        }
+        
+        .sort-desc .sort-icon {
+            border-top: 4px solid currentColor;
+        }
+        
+        /* Add a table header row */
+        thead tr {
+            background-color: rgb(36, 41, 43);
+        }
+        
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: rgb(36, 41, 43);
+            z-index: 10;
+            padding: 8px 4px;
+            text-align: left;
+        }
+    </style>
     <script>
         window.ro = {{.Ro}}
         window.extraPath = {{.ExtraPath}}.slice(0, -1)
-        window.onload = function () { js_will_be_here }
+        
+        // Add sorting state variables
+        window.sortColumn = 'name'; // Default sort by name
+        window.sortDirection = 'asc'; // Default sort direction
+        
+        window.onload = function () { 
+            js_will_be_here 
+            
+            // Initialize sorting functionality
+            initSorting();
+        }
+        
+        // Function to handle sorting initialization
+        function initSorting() {
+            const sortHeaders = document.querySelectorAll('.sort-header');
+            sortHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.sort;
+                    
+                    // If same column clicked, toggle direction
+                    if (window.sortColumn === column) {
+                        window.sortDirection = window.sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        window.sortColumn = column;
+                        window.sortDirection = 'asc';
+                    }
+                    
+                    // Update header classes to show sort direction
+                    sortHeaders.forEach(h => {
+                        h.classList.remove('active', 'sort-asc', 'sort-desc');
+                    });
+                    
+                    header.classList.add('active');
+                    header.classList.add(`sort-${window.sortDirection}`);
+                    
+                    // Perform the sort
+                    sortTable();
+                });
+            });
+            
+            // Set initial sort (name ascending)
+            document.querySelector('[data-sort="name"]').classList.add('active', 'sort-asc');
+            sortTable();
+        }
+        
+        // Function to sort the table rows
+        function sortTable() {
+            const table = document.getElementById('linkTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Sort rows based on the selected column and direction
+            rows.sort((a, b) => {
+                // Get the cell for the selected column
+                let aValue, bValue;
+                
+                if (window.sortColumn === 'name') {
+                    aValue = a.querySelector('.display-name a').textContent;
+                    bValue = b.querySelector('.display-name a').textContent;
+                    
+                    // Folders always come first regardless of sort direction
+                    const aIsFolder = aValue.endsWith('/');
+                    const bIsFolder = bValue.endsWith('/');
+                    
+                    if (aIsFolder && !bIsFolder) return -1;
+                    if (!aIsFolder && bIsFolder) return 1;
+                    
+                    // Case-insensitive string comparison for names
+                    return window.sortDirection === 'asc' 
+                        ? aValue.localeCompare(bValue, undefined, {sensitivity: 'base'})
+                        : bValue.localeCompare(aValue, undefined, {sensitivity: 'base'});
+                } 
+                else if (window.sortColumn === 'date') {
+                    aValue = a.querySelector('.mod-size code').textContent;
+                    bValue = b.querySelector('.mod-size code').textContent;
+                    
+                    // Folders always come first regardless of sort direction
+                    const aIsFolder = a.querySelector('.display-name a').textContent.endsWith('/');
+                    const bIsFolder = b.querySelector('.display-name a').textContent.endsWith('/');
+                    
+                    if (aIsFolder && !bIsFolder) return -1;
+                    if (!aIsFolder && bIsFolder) return 1;
+                    
+                    return window.sortDirection === 'asc' 
+                        ? aValue.localeCompare(bValue)
+                        : bValue.localeCompare(aValue);
+                } 
+                else if (window.sortColumn === 'size') {
+                    // Get size text
+                    aValue = a.querySelector('.file-size code').textContent;
+                    bValue = b.querySelector('.file-size code').textContent;
+                    
+                    // Folders always come first regardless of sort direction
+                    const aIsFolder = a.querySelector('.display-name a').textContent.endsWith('/');
+                    const bIsFolder = b.querySelector('.display-name a').textContent.endsWith('/');
+                    
+                    if (aIsFolder && !bIsFolder) return -1;
+                    if (!aIsFolder && bIsFolder) return 1;
+                    
+                    // Convert human-readable sizes to bytes for comparison
+                    const aSizeBytes = parseHumanSize(aValue);
+                    const bSizeBytes = parseHumanSize(bValue);
+                    
+                    return window.sortDirection === 'asc' 
+                        ? aSizeBytes - bSizeBytes
+                        : bSizeBytes - aSizeBytes;
+                }
+                
+                return 0;
+            });
+            
+            // Reappend rows in the sorted order
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        // Convert human-readable size to bytes for comparison
+        function parseHumanSize(sizeStr) {
+            if (!sizeStr || sizeStr === '-') return 0;
+            
+            const units = {'B': 1, 'k': 1024, 'M': 1024*1024, 'G': 1024*1024*1024, 'T': 1024*1024*1024*1024};
+            const matches = sizeStr.match(/^(\d+(?:\.\d+)?)([BkMGT])$/);
+            
+            if (matches) {
+                const value = parseFloat(matches[1]);
+                const unit = matches[2];
+                return value * units[unit];
+            }
+            
+            return 0;
+        }
     </script>
 </head>
 
@@ -70,28 +248,40 @@
     <div id="pdf" style="display:none;"> </div>
 
     <table id="linkTable">
-    {{range .RowsFolders}}
-        <tr>
-            <td class="arrow"><div class="arrow-icon"></div></td>
-            <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
-            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
-            <td class="mod-size"><code>1900-01-01</code></td>
-            <td class="file-size"><code>{{.Size}}</code></td>
-            <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
-            <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
-        </tr>
-    {{end}}
-    {{range .RowsFiles}}
-        <tr>
-            <td class="arrow"><div class="arrow-icon"></div></td>
-            <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
-            <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
-            <td class="mod-size"><code>1900-01-01</code></td>
-            <td class="file-size"><code>{{.Size}}</code></td>
-            <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
-            <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
-        </tr>
-    {{end}}
+        <thead>
+            <tr>
+                <th class="arrow"></th>
+                <th class="iconRow"></th>
+                <th class="display-name sort-header" data-sort="name">Name <span class="sort-icon"></span></th>
+                <th class="mod-size sort-header" data-sort="date">Modified <span class="sort-icon"></span></th>
+                <th class="file-size sort-header" data-sort="size">Size <span class="sort-icon"></span></th>
+                <th class="btn-sws" colspan="2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{range .RowsFolders}}
+            <tr>
+                <td class="arrow"><div class="arrow-icon"></div></td>
+                <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
+                <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
+                <td class="mod-size"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
+                <td class="file-size"><code>{{.Size}}</code></td>
+                <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
+                <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
+            </tr>
+        {{end}}
+        {{range .RowsFiles}}
+            <tr>
+                <td class="arrow"><div class="arrow-icon"></div></td>
+                <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
+                <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
+                <td class="mod-size"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
+                <td class="file-size"><code>{{.Size}}</code></td>
+                <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
+                <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
+            </tr>
+        {{end}}
+        </tbody>
     </table>
     <p id="help_message">Help: Ctrl/Cmd + h<p>
 </body>
