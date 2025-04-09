@@ -1,11 +1,11 @@
-gossa
+gossa-sws
 =============
 
-![e](https://user-images.githubusercontent.com/760637/71449335-790a4200-274a-11ea-80be-4c536fbad8a1.gif)
+![gossasws_screenshot](https://github.com/user-attachments/assets/239fb243-be60-4513-a06b-2a371c8e02a6)
 
-[![build status](https://github.com/pldubouilh/gossa/workflows/ci/badge.svg)](https://github.com/pldubouilh/gossa/actions)
-[![docker pulls](https://img.shields.io/docker/pulls/pldubouilh/gossa.svg?logo=docker)](https://hub.docker.com/r/pldubouilh/gossa)
-[![github downloads](https://img.shields.io/github/downloads/pldubouilh/gossa/total.svg?logo=github)](https://github.com/pldubouilh/gossa/releases)
+[![build status](https://github.com/neatplusone/gossa-simple-web-server/workflows/ci/badge.svg)](https://github.com/neatplusone/gossa-simple-web-server/actions)
+<!-- [![docker pulls](https://img.shields.io/docker/pulls/pldubouilh/gossa.svg?logo=docker)](https://hub.docker.com/r/pldubouilh/gossa) -->
+[![github downloads](https://img.shields.io/github/downloads/neatplusone/gossa-simple-web-server/total.svg?logo=github)](https://github.com/neatplusone/gossa-simple-web-server/releases)
 
 a fast and simple webserver for your files, that's dependency-free and with under 250 lines of code, easy to review.
 
@@ -23,15 +23,19 @@ a simple UI comes as default, featuring :
   * 💑 easy multi account setup, read-only mode
   * ✨ PWA-able
   * 🖥️ multi-platform support
+  * &plus; easy simple API for automation
+  * &plus; folder size calculation (optional)
+  * &plus; sorting by name, file modification date, file size
+  * &plus; ui/ux improvements
 
 ### install / build
-[arch linux (AUR)](https://aur.archlinux.org/packages/gossa/) - e.g. `yay -S gossa`
+<!-- [arch linux (AUR)](https://aur.archlinux.org/packages/gossa/) - e.g. `yay -S gossa` 
 
 [nix](https://search.nixos.org/packages?channel=unstable&show=gossa&from=0&size=50&sort=relevance&type=packages&query=gossa) - e.g. `nix-shell -p gossa`
 
-[mpr](https://mpr.makedeb.org/packages/gossa)
+[mpr](https://mpr.makedeb.org/packages/gossa) -->
 
-binaries are available on the [release page](https://github.com/pldubouilh/gossa/releases)
+binaries are available on the [release page](https://github.com/neatplusone/gossa-simple-web-server/releases)
 
 all builds are reproducible, checkout the hashes on the release page.
 
@@ -46,6 +50,7 @@ all builds are reproducible, checkout the hashes on the release page.
 press `Ctrl/Cmd + h` to see all the UI/keyboard shortcuts.
 
 ### fancier setups
+<!--
 release images are pushed to [dockerhub](https://hub.docker.com/r/pldubouilh/gossa), e.g. :
 
 ```sh
@@ -53,8 +58,9 @@ release images are pushed to [dockerhub](https://hub.docker.com/r/pldubouilh/gos
 % mkdir ~/LocalDirToShare
 % sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
 ```
+ -->
 
-in a do-one-thing-well mindset, HTTPS and authentication has been left to middlewares and proxies. [sample caddy configs](https://github.com/pldubouilh/gossa/blob/master/support/) are available to quickly setup multi users setups along with https.
+in a do-one-thing-well mindset, HTTPS and authentication has been left to middlewares and proxies. [sample caddy configs](https://github.com/neatplusone/gossa-simple-web-server/blob/master/support/) are available to quickly setup multi users setups along with https.
 
-automatic boot-time startup can be handled with a user systemd service - see [support](https://github.com/pldubouilh/gossa/tree/master/support)
+automatic boot-time startup can be handled with a user systemd service - see [support](https://github.com/neatplusone/gossa-simple-web-server/tree/master/support)
 
