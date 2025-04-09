@@ -104,6 +104,15 @@
                 });
             });
             
+            // Add special handling for the [Up] link
+            document.addEventListener('click', function(event) {
+                if (event.target && event.target.textContent === '[Up]') {
+                    // Navigate to parent directory
+                    window.location.href = '../';
+                    return false;
+                }
+            }, true);
+            
             // Set initial sort (name ascending)
             document.querySelector('[data-sort="name"]').classList.add('active', 'sort-asc');
             sortTable();
@@ -115,16 +124,16 @@
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
             
-            // Extract [Up] row before sorting
+            // First, extract the [Up] row if it exists
             let upRow = null;
-            rows.forEach((row, index) => {
-                const nameText = row.querySelector('.display-name a').textContent;
-                if (nameText === '[Up]') {
-                    upRow = rows.splice(index, 1)[0];
-                    return;
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].querySelector('.display-name a');
+                if (nameCell && nameCell.textContent === '[Up]') {
+                    upRow = rows.splice(i, 1)[0];
+                    break;
                 }
-            });
-
+            }
+            
             // Sort rows based on the selected column and direction
             rows.sort((a, b) => {
                 // Get the cell for the selected column
@@ -185,13 +194,16 @@
                 return 0;
             });
             
-            // Reappend rows in the sorted order
-            rows.forEach(row => tbody.appendChild(row));
-
-            // After sorting, put [Up] first
+            // Clear the tbody first
+            tbody.innerHTML = '';
+            
+            // First add the [Up] row if it exists
             if (upRow) {
                 tbody.appendChild(upRow);
             }
+            
+            // Then append all other sorted rows
+            rows.forEach(row => tbody.appendChild(row));
         }
         
         // Convert human-readable size to bytes for comparison
