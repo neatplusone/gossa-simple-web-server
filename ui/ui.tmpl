@@ -13,58 +13,6 @@
     <link href="data:image/svg+xml;base64,favicon_will_be_here" rel="icon" type="image/svg+xml" />
     <style type="text/css">
         css_will_be_here
-        
-        /* Add styles for sorting headers */
-        .sort-header {
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .sort-header:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .sort-header.active {
-            color: #fff;
-            font-weight: bold;
-        }
-        
-        .sort-icon {
-            display: inline-block;
-            width: 0;
-            height: 0;
-            margin-left: 5px;
-            vertical-align: middle;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-        }
-        
-        .sort-asc .sort-icon {
-            border-bottom: 4px solid currentColor;
-        }
-        
-        .sort-desc .sort-icon {
-            border-top: 4px solid currentColor;
-        }
-        
-        /* Add a table header row */
-        thead tr {
-            background-color: rgb(36, 41, 43);
-        }
-        
-        thead th {
-            position: sticky;
-            top: 0;
-            background-color: rgb(36, 41, 43);
-            z-index: 10;
-            padding: 8px 4px;
-            text-align: left;
-        }
-        
-        /* Styles for [Up] row */
-        .up-row .btn-sws {
-            visibility: hidden;
-        }
     </style>
     <script>
         window.ro = {{.Ro}}
@@ -161,8 +109,8 @@
                         : bValue.localeCompare(aValue, undefined, {sensitivity: 'base'});
                 } 
                 else if (window.sortColumn === 'date') {
-                    aValue = a.querySelector('.mod-size code').textContent;
-                    bValue = b.querySelector('.mod-size code').textContent;
+                    aValue = a.querySelector('.mod-file code').textContent;
+                    bValue = b.querySelector('.mod-file code').textContent;
                     
                     // Folders always come first regardless of sort direction
                     const aIsFolder = a.querySelector('.display-name a').textContent.endsWith('/');
@@ -284,7 +232,7 @@
             <tr>
                 <th class="spacer" colspan="2"></th>
                 <th class="display-name sort-header" data-sort="name">Name <span class="sort-icon"></span></th>
-                <th class="mod-size sort-header" data-sort="date">Modified <span class="sort-icon"></span></th>
+                <th class="mod-file sort-header" data-sort="date">Modified <span class="sort-icon"></span></th>
                 <th class="file-size sort-header" data-sort="size">Size <span class="sort-icon"></span></th>
                 <th class="btn-sws" colspan="2">Actions</th>
             </tr>
@@ -295,7 +243,7 @@
                 <td class="arrow"><div class="arrow-icon"></div></td>
                 <td class="iconRow"><i{{if ne .Name "[Up]"}} ondblclick="return rm(event)" onclick="return rename(event)"{{end}} class="btn icon icon-{{.Ext}} icon-blank"></i></td>
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
-                <td class="mod-size"><code>{{if and .ModTime (ne .Name "[Up]")}}{{.ModTime}}{{end}}</code></td>
+                <td class="mod-file"><code>{{if and .ModTime (ne .Name "[Up]")}}{{.ModTime}}{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
                 <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rename(event)"{{end}}><code>{{if ne .Name "[Up]"}}[REN]{{end}}</code></td>
                 <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rm(event)"{{end}}><code>{{if ne .Name "[Up]"}}[DEL]{{end}}</code></td>
@@ -306,7 +254,7 @@
                 <td class="arrow"><div class="arrow-icon"></div></td>
                 <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
-                <td class="mod-size"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
+                <td class="mod-file"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
                 <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
                 <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>

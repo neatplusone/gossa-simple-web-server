@@ -129,6 +129,11 @@ td.iconRow {
   width: 25px;
 }
 
+td.mod-file {
+  text-align: left;
+  padding-left: 1em;
+  width: 237px;
+}
 
 td.file-size {
   text-align: right;
@@ -406,6 +411,58 @@ h1 > span:hover {
   display: none;
   margin: unset;
 }
+
+        /* Add styles for sorting headers */
+        .sort-header {
+          cursor: pointer;
+          user-select: none;
+      }
+      
+      .sort-header:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .sort-header.active {
+          color: #fff;
+          font-weight: bold;
+      }
+      
+      .sort-icon {
+          display: inline-block;
+          width: 0;
+          height: 0;
+          margin-left: 5px;
+          vertical-align: middle;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+      }
+      
+      .sort-asc .sort-icon {
+          border-bottom: 4px solid currentColor;
+      }
+      
+      .sort-desc .sort-icon {
+          border-top: 4px solid currentColor;
+      }
+      
+      /* Add a table header row */
+      thead tr {
+          background-color: rgb(36, 41, 43);
+      }
+      
+      thead th {
+          position: sticky;
+          top: 0;
+          background-color: rgb(36, 41, 43);
+          z-index: 10;
+          padding: 8px 4px;
+          text-align: left;
+      }
+      
+      /* Styles for [Up] row */
+      .up-row .btn-sws {
+          visibility: hidden;
+      }
 
 .icon-large-folder {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAJFBMVEUAAACZmQAICAj4+Pj//5nMzGb/+/AAAAD/zJkzMwAAAP////+gebovAAAAAXRSTlMAQObYZgAAAAFiS0dECx/XxMAAAAAHdElNRQfiBhgXAy5jJ3EAAAAA1klEQVQoz42RMQ7CMBAEQ0mZIIp0/AGecJFO7kC2FKXmATxikaxUtPS48Ss5XxwnoWI7j3f3fHJV/aFa1KzOuwsRdacFHCjpthjuChbL0U261ipJnDd65IokJhCaGTCzEOZ25SAwaAUgASoOyFFzxWEsEkQGz2BskFJfHMMwWB07AVAXg/QwZscYPzHqXAVicDE4eJ47QOOoHexzhINxQRxIEVkC6I217OGLg9DLIn7qkHHEWiAvEwAdJyQlNKK3gKfcITuxZjzrO+qt2mr/3uj1z1//6AsSG3mwAQQN9wAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOC0wNi0yNFQyMzowMzo0Ni0wNDowMFfZ8nYAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTgtMDYtMjRUMjM6MDM6NDYtMDQ6MDAmhErKAAAAAElFTkSuQmCC");
