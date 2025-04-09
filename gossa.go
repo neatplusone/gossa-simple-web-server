@@ -52,6 +52,7 @@ var symlinks = flag.Bool("symlinks", false, "follow symlinks \033[4mWARNING\033[
 var verb = flag.Bool("verb", false, "verbosity")
 var skipHidden = flag.Bool("k", true, "\nskip hidden files")
 var ro = flag.Bool("ro", false, "read only mode (no upload, rename, move, etc...)")
+var calcFolderSize = flag.Bool("calcfoldersize", false, "calculate and display folder sizes (may slow down browsing in large directories)")
 
 type rpcCall struct {
 	Call string   `json:"call"`
@@ -89,9 +90,24 @@ func humanize(bytes int64) string {
 	}
 }
 
-// Format time as ISO8601-like format (YYYY-MM-DD)
+// Format time with full date and time
 func formatTime(t time.Time) string {
-	return t.Format("2006-01-02")
+	return t.Format("2006-01-02 15:04:05")
+}
+
+// Calculate the total size of a directory recursively
+func getDirSize(path string) (int64, error) {
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return nil
+	})
+	return size, err
 }
 
 // Modify the replyList function to populate the ModTime field
@@ -140,7 +156,13 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 		modTime := formatTime(el.ModTime())
 
 		if el.IsDir() {
-			row := rowTemplate{name + "/", template.URL(href), "", "folder", modTime}
+			size := ""
+			if *calcFolderSize {
+				if dirSize, err := getDirSize(filepath.Join(fullPath, el.Name())); err == nil {
+					size = humanize(dirSize)
+				}
+			}
+			row := rowTemplate{name + "/", template.URL(href), size, "folder", modTime}
 			p.RowsFolders = append(p.RowsFolders, row)
 		} else {
 			sl := strings.Split(name, ".")
@@ -325,7 +347,8 @@ func main() {
 	handler = http.StripPrefix(*extraPath, http.FileServer(http.Dir(rootPath)))
 
 	fmt.Printf("Gossa starting on directory %s\n", rootPath)
-	fmt.Printf("Verbose: %t, Symlinks: %t, Read-Only: %t, Hidden-Files Skipped: %t\n", *verb, *symlinks, *ro, *skipHidden)
+	fmt.Printf("Verbose: %t, Symlinks: %t, Read-Only: %t, Hidden-Files Skipped: %t, Calculate Folder Sizes: %t\n", 
+		*verb, *symlinks, *ro, *skipHidden, *calcFolderSize)
 	fmt.Printf("Listening on http://%s:%s%s\n", *host, *port, *extraPath)
 	if err = server.ListenAndServe(); err != http.ErrServerClosed {
 		check(err)
