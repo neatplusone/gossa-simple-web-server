@@ -23,9 +23,9 @@ a simple UI comes as default, featuring :
   * 💑 easy multi account setup, read-only mode
   * ✨ PWA-able
   * 🖥️ multi-platform support
-  * &plus; easy simple API for automation
+  * &plus; easy simple API for automation, see [See CURL/Powershell example](https://github.com/neatplusone/gossa-simple-web-server/blob/gossa-sws/API.md)
   * &plus; folder size calculation (optional)
-  * &plus; sorting by name, file modification date, file size
+  * &plus; sorting by name, file modification date, file size 
   * &plus; ui/ux improvements
 
 ### install / build
