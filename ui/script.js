@@ -7,7 +7,7 @@ function cancelDefault (e) {
 }
 
 const warningMsg = () => 'Leaving will interrupt transfer?\n'
-const rmMsg = () => !confirm('Remove file? [todo:filename]\n')
+const rmMsg = (filename) => !confirm(`Remove file? ${filename}\n`)
 const ensureMove = () => !confirm('move items?')
 const isRo = () => window.ro
 
@@ -432,7 +432,8 @@ window.rm = function(e) {
   // Skip if it's the [Up] link
   if (target.innerText === '../' || target.innerText === '[Up]') return
   
-  if (rmMsg()) return
+  // Pass the actual filename to rmMsg
+  if (rmMsg(target.innerText)) return
 
   moveArrow()
   rmCall(decode(target.href), refresh)
