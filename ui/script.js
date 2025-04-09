@@ -85,7 +85,7 @@ window.onClickLink = e => {
   }
 
   // Navigate to parent directory
-  if (event.target.textContent === '[Up]') {
+  if (a && (a.innerText === '[Up]' || a.innerText === '../')) {
     window.location.href = '../';
     return false;
   }
