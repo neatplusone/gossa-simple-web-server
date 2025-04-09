@@ -123,8 +123,10 @@ func replyList(w http.ResponseWriter, r *http.Request, fullPath string, path str
 	title := "/" + strings.TrimPrefix(path, *extraPath)
 	p := pageTemplate{}
 	if path != *extraPath {
-		// Parent directory entry
-		p.RowsFolders = append(p.RowsFolders, rowTemplate{"../", "../", "", "folder", ""})
+		// Special parent directory entry
+		// Use a special indicator "up" to make it easy to identify in the JS sorting logic
+		// Use empty ModTime to avoid showing date for parent directory
+		p.RowsFolders = append(p.RowsFolders, rowTemplate{"[Up]", "../", "", "up", ""})
 	}
 	p.ExtraPath = template.HTML(html.EscapeString(*extraPath))
 	p.Ro = *ro

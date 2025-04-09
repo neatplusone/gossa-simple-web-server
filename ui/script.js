@@ -84,6 +84,12 @@ window.onClickLink = e => {
     setCursorTo(e.target.innerText)
   }
 
+  // Navigate to parent directory
+  if (event.target.textContent === '[Up]') {
+    window.location.href = '../';
+    return false;
+  }
+
   // always force download if ctrl pressed (also covers zipping folders)
   if (e && e.ctrlKey) {
     dl(a)

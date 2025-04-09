@@ -115,6 +115,16 @@
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
             
+            // Extract [Up] row before sorting
+            let upRow = null;
+            rows.forEach((row, index) => {
+                const nameText = row.querySelector('.display-name a').textContent;
+                if (nameText === '[Up]') {
+                    upRow = rows.splice(index, 1)[0];
+                    return;
+                }
+            });
+
             // Sort rows based on the selected column and direction
             rows.sort((a, b) => {
                 // Get the cell for the selected column
@@ -177,6 +187,11 @@
             
             // Reappend rows in the sorted order
             rows.forEach(row => tbody.appendChild(row));
+
+            // After sorting, put [Up] first
+            if (upRow) {
+                tbody.appendChild(upRow);
+            }
         }
         
         // Convert human-readable size to bytes for comparison
