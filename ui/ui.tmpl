@@ -234,7 +234,9 @@
                 <th class="display-name sort-header" data-sort="name">Name <span class="sort-icon"></span></th>
                 <th class="mod-file sort-header" data-sort="date">Modified <span class="sort-icon"></span></th>
                 <th class="file-size sort-header" data-sort="size">Size <span class="sort-icon"></span></th>
+                {{if not $.Ro}}
                 <th class="btn-sws" colspan="2">Actions</th>
+                {{end}}
             </tr>
         </thead>
         <tbody>
@@ -245,8 +247,10 @@
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
                 <td class="mod-file"><code>{{if and .ModTime (ne .Name "[Up]")}}{{.ModTime}}{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
+                {{if not $.Ro}}
                 <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rename(event)"{{end}}><code>{{if ne .Name "[Up]"}}[REN]{{end}}</code></td>
                 <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rm(event)"{{end}}><code>{{if ne .Name "[Up]"}}[DEL]{{end}}</code></td>
+                {{end}}
             </tr>
         {{end}}
         {{range .RowsFiles}}
@@ -256,8 +260,10 @@
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
                 <td class="mod-file"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
+                {{if not $.Ro}}
                 <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
                 <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
+                {{end}}
             </tr>
         {{end}}
         </tbody>
