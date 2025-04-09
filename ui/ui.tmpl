@@ -60,6 +60,11 @@
             padding: 8px 4px;
             text-align: left;
         }
+        
+        /* Styles for [Up] row */
+        .up-row .btn-sws {
+            visibility: hidden;
+        }
     </style>
     <script>
         window.ro = {{.Ro}}
@@ -286,14 +291,14 @@
         </thead>
         <tbody>
         {{range .RowsFolders}}
-            <tr>
+            <tr{{if eq .Name "[Up]"}} class="up-row"{{end}}>
                 <td class="arrow"><div class="arrow-icon"></div></td>
-                <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
+                <td class="iconRow"><i{{if ne .Name "[Up]"}} ondblclick="return rm(event)" onclick="return rename(event)"{{end}} class="btn icon icon-{{.Ext}} icon-blank"></i></td>
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
-                <td class="mod-size"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
+                <td class="mod-size"><code>{{if and .ModTime (ne .Name "[Up]")}}{{.ModTime}}{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
-                <td class="btn-sws" onclick="return rename(event)"><code>[REN]</code></td>
-                <td class="btn-sws" onclick="return rm(event)"><code>[DEL]</code></td>
+                <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rename(event)"{{end}}><code>{{if ne .Name "[Up]"}}[REN]{{end}}</code></td>
+                <td class="btn-sws"{{if ne .Name "[Up]"}} onclick="return rm(event)"{{end}}><code>{{if ne .Name "[Up]"}}[DEL]{{end}}</code></td>
             </tr>
         {{end}}
         {{range .RowsFiles}}

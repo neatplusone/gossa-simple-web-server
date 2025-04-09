@@ -403,18 +403,8 @@ window.mkdirBtn = function () {
 // Icon click handler
 const getBtnA = e => e.target.closest('tr').querySelector('a')
 
-window.rm = e => {
-  if (window.ro) return true
-  clearTimeout(window.clickToken)
-  const target = e.key ? getASelected() : getBtnA(e)
-  if (target.innerText === '../') return
-  if (rmMsg()) return
-
-  moveArrow()
-  rmCall(decode(target.href), refresh)
-}
-
-window.rename = (e, commit) => {
+// Update to rename function
+window.rename = function(e, commit) {
   if (window.ro) return true
   clearTimeout(window.clickToken)
 
@@ -424,11 +414,28 @@ window.rename = (e, commit) => {
   }
 
   const target = e.key ? getASelected() : getBtnA(e)
-  if (target.innerText === '../') return
+  // Skip if it's the [Up] link
+  if (target.innerText === '../' || target.innerText === '[Up]') return
+  
   const chg = prompt('rename to', target.innerText)
   if (chg && !isDupe(chg)) {
     mvCall(prependPath(target.innerText), prependPath(chg), refresh)
   }
+}
+
+// Update to rm function
+window.rm = function(e) {
+  if (window.ro) return true
+  clearTimeout(window.clickToken)
+  
+  const target = e.key ? getASelected() : getBtnA(e)
+  // Skip if it's the [Up] link
+  if (target.innerText === '../' || target.innerText === '[Up]') return
+  
+  if (rmMsg()) return
+
+  moveArrow()
+  rmCall(decode(target.href), refresh)
 }
 
 function aboveBelowRightin (el) {
