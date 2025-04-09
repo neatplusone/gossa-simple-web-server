@@ -352,7 +352,7 @@ func main() {
 	http.HandleFunc("/", doContent)
 	handler = http.StripPrefix(*extraPath, http.FileServer(http.Dir(rootPath)))
 
-	fmt.Printf("Gossa starting on directory %s\n", rootPath)
+	fmt.Printf("Gossa-SWS starting on directory %s\n", rootPath)
 	fmt.Printf("Verbose: %t, Symlinks: %t, Read-Only: %t, Hidden-Files Skipped: %t, Calculate Folder Sizes: %t\n", 
 		*verb, *symlinks, *ro, *skipHidden, *calcFolderSize)
 	fmt.Printf("Listening on http://%s:%s%s\n", *host, *port, *extraPath)
