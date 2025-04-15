@@ -18,13 +18,13 @@
   body {
     margin-left: 10px !important;
   }
-  .ic {
-    display: inherit !important;
-  }
   .file-size {
     display: none !important;
   }
   #help_message {
+    display: none !important;
+  }
+  .spacer:first-child {
     display: none !important;
   }
 }
