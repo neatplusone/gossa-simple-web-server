@@ -70,7 +70,8 @@ async function browseTo (href, flickerDone, skipHistory) {
       setTitle()
     }
 
-    init()
+    init();
+    initSorting();
     if (flickerDone) flicker(okBadge)
   } catch (error) {
     flicker(sadBadge)
@@ -900,6 +901,153 @@ document.body.addEventListener('keydown', e => {
 
 function setTitle () {
   pageH1.innerHTML = '<span>' + pageH1.innerText.split('/').join('/</span><span>') + '</span>'
+}
+
+// Function to handle sorting initialization
+function initSorting() {
+  console.log("Init sorting")
+  const sortHeaders = document.querySelectorAll('.sort-header');
+  sortHeaders.forEach(header => {
+      header.addEventListener('click', () => {
+          const column = header.dataset.sort;
+          
+          // If same column clicked, toggle direction
+          if (window.sortColumn === column) {
+              window.sortDirection = window.sortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+              window.sortColumn = column;
+              window.sortDirection = 'asc';
+          }
+          
+          // Update header classes to show sort direction
+          sortHeaders.forEach(h => {
+              h.classList.remove('active', 'sort-asc', 'sort-desc');
+          });
+          
+          header.classList.add('active');
+          header.classList.add(`sort-${window.sortDirection}`);
+          
+          // Perform the sort
+          sortTable();
+      });
+  });
+  
+  // Add special handling for the [Up] link
+  document.addEventListener('click', function(event) {
+      if (event.target && event.target.textContent === '[Up]') {
+          // Navigate to parent directory
+          window.location.href = '../';
+          return false;
+      }
+  }, true);
+  
+  // Set initial sort (name ascending)
+  document.querySelector('[data-sort="name"]').classList.add('active', 'sort-asc');
+  sortTable();
+}
+
+// Function to sort the table rows
+function sortTable() {
+  const table = document.getElementById('linkTable');
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  
+  // First, extract the [Up] row if it exists
+  let upRow = null;
+  for (let i = 0; i < rows.length; i++) {
+      const nameCell = rows[i].querySelector('.display-name a');
+      if (nameCell && nameCell.textContent === '[Up]') {
+          upRow = rows.splice(i, 1)[0];
+          break;
+      }
+  }
+  
+  // Sort rows based on the selected column and direction
+  rows.sort((a, b) => {
+      // Get the cell for the selected column
+      let aValue, bValue;
+      
+      if (window.sortColumn === 'name') {
+          aValue = a.querySelector('.display-name a').textContent;
+          bValue = b.querySelector('.display-name a').textContent;
+          
+          // Folders always come first regardless of sort direction
+          const aIsFolder = aValue.endsWith('/');
+          const bIsFolder = bValue.endsWith('/');
+          
+          if (aIsFolder && !bIsFolder) return -1;
+          if (!aIsFolder && bIsFolder) return 1;
+          
+          // Case-insensitive string comparison for names
+          return window.sortDirection === 'asc' 
+              ? aValue.localeCompare(bValue, undefined, {sensitivity: 'base'})
+              : bValue.localeCompare(aValue, undefined, {sensitivity: 'base'});
+      } 
+      else if (window.sortColumn === 'date') {
+          aValue = a.querySelector('.mod-file code').textContent;
+          bValue = b.querySelector('.mod-file code').textContent;
+          
+          // Folders always come first regardless of sort direction
+          const aIsFolder = a.querySelector('.display-name a').textContent.endsWith('/');
+          const bIsFolder = b.querySelector('.display-name a').textContent.endsWith('/');
+          
+          if (aIsFolder && !bIsFolder) return -1;
+          if (!aIsFolder && bIsFolder) return 1;
+          
+          return window.sortDirection === 'asc' 
+              ? aValue.localeCompare(bValue)
+              : bValue.localeCompare(aValue);
+      } 
+      else if (window.sortColumn === 'size') {
+          // Get size text
+          aValue = a.querySelector('.file-size code').textContent;
+          bValue = b.querySelector('.file-size code').textContent;
+          
+          // Folders always come first regardless of sort direction
+          const aIsFolder = a.querySelector('.display-name a').textContent.endsWith('/');
+          const bIsFolder = b.querySelector('.display-name a').textContent.endsWith('/');
+          
+          if (aIsFolder && !bIsFolder) return -1;
+          if (!aIsFolder && bIsFolder) return 1;
+          
+          // Convert human-readable sizes to bytes for comparison
+          const aSizeBytes = parseHumanSize(aValue);
+          const bSizeBytes = parseHumanSize(bValue);
+          
+          return window.sortDirection === 'asc' 
+              ? aSizeBytes - bSizeBytes
+              : bSizeBytes - aSizeBytes;
+      }
+      
+      return 0;
+  });
+  
+  // Clear the tbody first
+  tbody.innerHTML = '';
+  
+  // First add the [Up] row if it exists
+  if (upRow) {
+      tbody.appendChild(upRow);
+  }
+  
+  // Then append all other sorted rows
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+// Convert human-readable size to bytes for comparison
+function parseHumanSize(sizeStr) {
+  if (!sizeStr || sizeStr === '-') return 0;
+  
+  const units = {'B': 1, 'k': 1024, 'M': 1024*1024, 'G': 1024*1024*1024, 'T': 1024*1024*1024*1024};
+  const matches = sizeStr.match(/^(\d+(?:\.\d+)?)([BkMGT])$/);
+  
+  if (matches) {
+      const value = parseFloat(matches[1]);
+      const unit = matches[2];
+      return value * units[unit];
+  }
+  
+  return 0;
 }
 
 function init () {

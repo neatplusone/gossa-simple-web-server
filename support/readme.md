@@ -16,15 +16,15 @@ use the `service` file provided here to use as a systemd service.
 
 ## run with docker
 
-the master branch is automatically built and pushed to [dockerhub](https://hub.docker.com/r/pldubouilh/gossa) under `pldubouilh/gossa`.
+the master branch is automatically built and pushed to [GHCR](https://github.com/neatplusone/gossa-simple-web-server/pkgs/container/gossa-simple-web-server) under `neatplusone/gossa-simple-web-server`.
 
 ```sh
 # pull from dockerhub and run
 % mkdir ~/LocalDirToShare
-% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
+% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 ghcr.io/neatplusone/gossa-simple-web-server
 
 # options are settable through env. variabes. all the options are the build.Dockerfile
-% sudo docker run -e PREFIX="/gossa/" -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
+% sudo docker run -e PREFIX="/gossa/" -v ~/LocalDirToShare:/shared -p 8000:8000 ghcr.io/neatplusone/gossa-simple-web-server
 ```
 
 if you prefer building the image yourself :

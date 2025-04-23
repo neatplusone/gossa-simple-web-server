@@ -5,8 +5,15 @@ gossa-linux-arm64
 gossa-mac
 gossa-windows.exe
 gossa.exe
+gossa-sws
+gossa-sws-linux64
+gossa-sws-linux-arm
+gossa-sws-linux-arm64
+gossa-sws-mac
+gossa-sws-windows.exe
+gossa-sws.exe
 builds
-gossa.test
+gossa-sws.test
 
 *.out
 .vscode

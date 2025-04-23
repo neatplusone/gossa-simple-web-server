@@ -4,7 +4,6 @@ gossa-sws
 ![gossasws_screenshot](https://github.com/user-attachments/assets/239fb243-be60-4513-a06b-2a371c8e02a6)
 
 [![build status](https://github.com/neatplusone/gossa-simple-web-server/workflows/ci/badge.svg)](https://github.com/neatplusone/gossa-simple-web-server/actions)
-<!-- [![docker pulls](https://img.shields.io/docker/pulls/pldubouilh/gossa.svg?logo=docker)](https://hub.docker.com/r/pldubouilh/gossa) -->
 [![github downloads](https://img.shields.io/github/downloads/neatplusone/gossa-simple-web-server/total.svg?logo=github)](https://github.com/neatplusone/gossa-simple-web-server/releases)
 
 a fast and simple webserver for your files, that's dependency-free and with under 250 lines of code, easy to review.
@@ -51,12 +50,12 @@ press `Ctrl/Cmd + h` to see all the UI/keyboard shortcuts.
 
 ### fancier setups
 <!--
-release images are pushed to [dockerhub](https://hub.docker.com/r/pldubouilh/gossa), e.g. :
+release images are pushed to [ghcr](https://github.com/neatplusone/gossa-simple-web-server/pkgs/container/gossa-simple-web-server), e.g. :
 
 ```sh
 # pull from dockerhub and run
 % mkdir ~/LocalDirToShare
-% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 pldubouilh/gossa
+% sudo docker run -v ~/LocalDirToShare:/shared -p 8000:8000 neatplusone/gossa-simple-web-server
 ```
  -->
 

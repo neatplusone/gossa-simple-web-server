@@ -2,7 +2,7 @@ version: '2'
 
 services:
   gossa-server:
-    image: docker.io/pldubouilh/gossa:latest
+    image: ghcr.io/neatplusone/gossa-simple-web-server:latest
     container_name: gossa
     restart: always
     read_only: true
