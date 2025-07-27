@@ -24,17 +24,17 @@ test::
 	-@cd test-fixture && ln -s ../support .; true
 	go test -cover -c -tags testrunmain
 
-	timeout -s SIGINT 3 ./gossa.test -test.coverprofile=normal.out -test.run '^TestRunMain' -h=127.0.0.1 -verb=true test-fixture &
+	timeout -s SIGINT 3 ./gossa-sws.test -test.coverprofile=normal.out -test.run '^TestRunMain' -h=127.0.0.1 -verb=true test-fixture &
 	sleep 2
 	go test -run TestNormal
 	sleep 1
 
-	timeout -s SIGINT 3 ./gossa.test -test.coverprofile=extra.out -test.run '^TestRunMain' -h=127.0.0.1 -prefix='/fancy-path/' -k=false -symlinks=true test-fixture &
+	timeout -s SIGINT 3 ./gossa-sws.test -test.coverprofile=extra.out -test.run '^TestRunMain' -h=127.0.0.1 -prefix='/fancy-path/' -k=false -symlinks=true test-fixture &
 	sleep 2
 	go test -run TestExtra
 	sleep 1
 
-	timeout -s SIGINT 3 ./gossa.test -test.coverprofile=ro.out -test.run '^TestRunMain' -h=127.0.0.1 -ro=true test-fixture &
+	timeout -s SIGINT 3 ./gossa-sws.test -test.coverprofile=ro.out -test.run '^TestRunMain' -h=127.0.0.1 -ro=true test-fixture &
 	sleep 2
 	go test -run TestRo
 	sleep 1
