@@ -19,6 +19,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"mime"
 	"net/http"
 	"net/url"
 	"os"
@@ -28,6 +29,12 @@ import (
 	"strings"
 	"time"
 )
+
+func init() {
+	// Register WASM MIME type - required for WebAssembly to work correctly
+	// Without this, browsers reject .wasm files with "expected magic word" errors
+	mime.AddExtensionType(".wasm", "application/wasm")
+}
 
 type rowTemplate struct {
 	Name    string
