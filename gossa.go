@@ -212,6 +212,12 @@ func doContent(w http.ResponseWriter, r *http.Request) {
 	stat, errStat := os.Stat(fullPath)
 	check(errStat)
 
+	// Serve .html files directly when explicitly requested (bypass FileServer's index.html redirect)
+	if !stat.IsDir() && strings.HasSuffix(strings.ToLower(path), ".html") {
+		http.ServeFile(w, r, fullPath)
+		return
+	}
+
 	if stat.IsDir() {
 		replyList(w, r, fullPath, path)
 	} else {
