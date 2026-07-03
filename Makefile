@@ -39,6 +39,16 @@ test::
 	go test -run TestRo
 	sleep 1
 
+	timeout -s SIGINT 3 ./gossa-sws.test -test.coverprofile=maxupload.out -test.run '^TestRunMain' -h=127.0.0.1 -maxupload=1 test-fixture &
+	sleep 2
+	go test -run TestMaxUpload
+	sleep 1
+
+	timeout -s SIGINT 3 ./gossa-sws.test -test.coverprofile=auth.out -test.run '^TestRunMain' -h=127.0.0.1 -auth=gossa:secret test-fixture &
+	sleep 2
+	go test -run TestAuth
+	sleep 1
+
 	# gocovmerge ro.out extra.out normal.out > all.out
 	# go tool cover -html all.out
 	# go tool cover -func=all.out | grep main | grep '9.\..\%'

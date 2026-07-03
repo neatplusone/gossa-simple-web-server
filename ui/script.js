@@ -50,6 +50,36 @@ const encodeURIHash = e => encodeURI(e).replaceAll('#', '%23')
 // Manual upload
 manualUpload.addEventListener('change', () => Array.from(manualUpload.files).forEach(f => isDupe(f.name) || postFile(f, '/' + f.name)), false)
 
+// Batch delete: reuse the single-item rm pipeline for every checked row.
+const batchBoxes = () => Array.from(table.querySelectorAll('.rowSelect:checked'))
+
+function updateBatchDel () {
+  const btn = document.getElementById('batchDel')
+  if (!btn) return
+  const n = batchBoxes().length
+  btn.style.display = n ? 'block' : 'none'
+  const count = document.getElementById('batchDelCount')
+  if (count) count.textContent = n
+}
+
+// table element persists across soft-nav (only its innerHTML is swapped), so a
+// single delegated listener keeps working after refreshes.
+table.addEventListener('change', e => {
+  if (e.target && e.target.classList && e.target.classList.contains('rowSelect')) updateBatchDel()
+})
+
+window.batchRm = function () {
+  if (window.ro) return
+  const paths = batchBoxes().map(b => {
+    const a = b.closest('tr').querySelector('a')
+    return a ? decode(a.href) : null
+  }).filter(Boolean)
+  if (!paths.length) return
+  if (!confirm(`Remove ${paths.length} item(s)?\n`)) return
+  const next = () => paths.length ? rmCall(paths.shift(), next) : refresh()
+  next()
+}
+
 // Soft nav
 async function browseTo (href, flickerDone, skipHistory) {
   try {
@@ -1083,5 +1113,8 @@ function init () {
   } else {
     helpMsg.style.display = 'none'
   }
+
+  // fresh listing renders unchecked boxes; reset the batch-delete button
+  updateBatchDel()
 }
 init()

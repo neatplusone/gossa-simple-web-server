@@ -74,6 +74,10 @@
         {{end}}
     </div>
 
+    {{if not .Ro}}
+    <div id="batchDel" onclick="window.batchRm()" title="Delete selected items" style="display:none;">Delete selected (<span id="batchDelCount">0</span>)</div>
+    {{end}}
+
     <div id="pics" style="display:none;"> <img draggable="false" onclick="window.picsNav()" id="picsHolder" /></div>
     <div id="video" style="display:none;">
         <div onclick="window.videodl()" class="icon-dl" id="video-dl"></div>
@@ -98,7 +102,7 @@
         {{range .RowsFolders}}
             <tr{{if eq .Name "[Up]"}} class="up-row"{{end}}>
                 <td class="arrow"><div class="arrow-icon"></div></td>
-                <td class="iconRow"><i{{if ne .Name "[Up]"}} ondblclick="return rm(event)" onclick="return rename(event)"{{end}} class="btn icon icon-{{.Ext}} icon-blank"></i></td>
+                <td class="iconRow">{{if and (not $.Ro) (ne .Name "[Up]")}}<input type="checkbox" class="rowSelect" onclick="event.stopPropagation()">{{end}}<i{{if ne .Name "[Up]"}} ondblclick="return rm(event)" onclick="return rename(event)"{{end}} class="btn icon icon-{{.Ext}} icon-blank"></i></td>
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
                 <td class="mod-file"><code>{{if and .ModTime (ne .Name "[Up]")}}{{.ModTime}}{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>
@@ -111,7 +115,7 @@
         {{range .RowsFiles}}
             <tr>
                 <td class="arrow"><div class="arrow-icon"></div></td>
-                <td class="iconRow"><i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
+                <td class="iconRow">{{if not $.Ro}}<input type="checkbox" class="rowSelect" onclick="event.stopPropagation()">{{end}}<i ondblclick="return rm(event)" onclick="return rename(event)" class="btn icon icon-{{.Ext}} icon-blank"></i></td>
                 <td class="display-name"><a class="list-links" oncontextmenu="return setCursorTo(event.target.innerText)" onclick="return onClickLink(event)" href="{{.Href}}">{{.Name}}</a></td>
                 <td class="mod-file"><code>{{if .ModTime}}{{.ModTime}}{{else}}1900-01-01{{end}}</code></td>
                 <td class="file-size"><code>{{.Size}}</code></td>

@@ -7,6 +7,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+	"crypto/subtle"
 	_ "embed"
 	"encoding/hex"
 	"encoding/json"
@@ -60,6 +61,10 @@ var verb = flag.Bool("verb", false, "verbosity")
 var skipHidden = flag.Bool("k", true, "\nskip hidden files")
 var ro = flag.Bool("ro", false, "read only mode (no upload, rename, move, etc...)")
 var calcFolderSize = flag.Bool("calcfoldersize", false, "calculate and display folder sizes (may slow down browsing in large directories)")
+var maxUpload = flag.Int("maxupload", 0, "max upload size in megabytes per file (0 = unlimited)")
+var tlsCert = flag.String("tls-cert", "", "path to TLS certificate file to serve HTTPS (requires -tls-key)")
+var tlsKey = flag.String("tls-key", "", "path to TLS key file to serve HTTPS (requires -tls-cert)")
+var auth = flag.String("auth", "", "enable HTTP basic auth, format user:pass (empty = disabled)")
 
 type rpcCall struct {
 	Call string   `json:"call"`
@@ -73,6 +78,19 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+// needArgs panics (recovered by exitPath) when an rpc call is missing arguments.
+func needArgs(rpc rpcCall, n int) {
+	if len(rpc.Args) < n {
+		panic(errors.New("missing rpc arguments"))
+	}
+}
+
+// within reports whether p is rootPath itself or strictly inside it, guarding
+// against sibling-directory prefix matches (e.g. /srv/data vs /srv/data-secret).
+func within(p string) bool {
+	return p == rootPath || strings.HasPrefix(p, rootPath+string(os.PathSeparator))
 }
 
 func exitPath(w http.ResponseWriter, s ...interface{}) {
@@ -229,6 +247,10 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	path := r.Header.Get("gossa-path")
 	defer exitPath(w, "upload", path)
 
+	if *maxUpload > 0 {
+		r.Body = http.MaxBytesReader(w, r.Body, int64(*maxUpload)*1024*1024)
+	}
+
 	path, err := url.PathUnescape(path)
 	check(err)
 	reader, err := r.MultipartReader()
@@ -239,7 +261,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	}
 	dst, err := os.Create(enforcePath(path))
 	check(err)
-	io.Copy(dst, part)
+	defer dst.Close()
+	_, err = io.Copy(dst, part)
+	check(err)
 	w.Write([]byte("ok"))
 }
 
@@ -250,7 +274,7 @@ func zipRPC(w http.ResponseWriter, r *http.Request) {
 	zipFullPath := enforcePath(zipPath)
 	_, err := os.Lstat(zipFullPath)
 	check(err)
-	w.Header().Add("Content-Disposition", "attachment; filename=\""+zipName+".zip\"")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", zipName+".zip"))
 	zipWriter := zip.NewWriter(w)
 	defer zipWriter.Close()
 
@@ -292,19 +316,24 @@ func rpc(w http.ResponseWriter, r *http.Request) {
 	defer exitPath(w, "rpc", &rpc)
 	bodyBytes, err := io.ReadAll(r.Body)
 	check(err)
-	json.Unmarshal(bodyBytes, &rpc)
+	check(json.Unmarshal(bodyBytes, &rpc))
 	ret := []byte("ok")
 
 	switch rpc.Call {
 	case "mkdirp":
+		needArgs(rpc, 1)
 		err = os.MkdirAll(enforcePath(rpc.Args[0]), os.ModePerm)
 	case "mv":
+		needArgs(rpc, 2)
 		err = os.Rename(enforcePath(rpc.Args[0]), enforcePath(rpc.Args[1]))
 	case "rm":
+		needArgs(rpc, 1)
 		err = os.RemoveAll(enforcePath(rpc.Args[0]))
 	case "sum":
+		needArgs(rpc, 2)
 		file, err := os.Open(enforcePath(rpc.Args[0]))
 		check(err)
+		defer file.Close()
 		var hash hash.Hash
 		switch rpc.Args[1] {
 		case "md5":
@@ -315,12 +344,16 @@ func rpc(w http.ResponseWriter, r *http.Request) {
 			hash = sha256.New()
 		case "sha512":
 			hash = sha512.New()
+		default:
+			check(errors.New("unknown hash algorithm"))
 		}
 		_, err = io.Copy(hash, file)
 		check(err)
 		checksum := hash.Sum(nil)
 		ret = make([]byte, hex.EncodedLen(len(checksum)))
 		hex.Encode(ret, checksum)
+	default:
+		check(errors.New("unknown rpc call"))
 	}
 
 	check(err)
@@ -336,7 +369,7 @@ func enforcePath(p string) string {
 	// ... or if path doesnt contain the prefix path we expect,
 	// ... or if we're skipping hidden folders, and one is requested,
 	// ... or if we're skipping symlinks, path exists, and a symlink out of bound requested
-	if err != nil || !strings.HasPrefix(fp, rootPath) || *skipHidden && strings.Contains(p, "/.") || !*symlinks && len(sl) > 0 && !strings.HasPrefix(sl, rootPath) {
+	if err != nil || !within(fp) || *skipHidden && strings.Contains(p, "/.") || !*symlinks && len(sl) > 0 && !within(sl) {
 		panic(errors.New("invalid path"))
 	}
 
@@ -352,10 +385,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	if (*tlsCert == "") != (*tlsKey == "") {
+		fmt.Println("error: -tls-cert and -tls-key must be provided together")
+		os.Exit(1)
+	}
+
 	var err error
 	rootPath, err = filepath.Abs(rootPath)
 	check(err)
-	server := &http.Server{Addr: *host + ":" + *port, Handler: handler}
 
 	if !*ro {
 		http.HandleFunc(*extraPath+"rpc", rpc)
@@ -365,11 +402,49 @@ func main() {
 	http.HandleFunc("/", doContent)
 	handler = http.StripPrefix(*extraPath, http.FileServer(http.Dir(rootPath)))
 
+	var root http.Handler = http.DefaultServeMux
+	if *auth != "" {
+		root = basicAuth(root, *auth)
+	}
+	server := &http.Server{Addr: *host + ":" + *port, Handler: root}
+
+	scheme := "http"
+	if *tlsCert != "" {
+		scheme = "https"
+	}
 	fmt.Printf("Gossa-SWS starting on directory %s\n", rootPath)
-	fmt.Printf("Verbose: %t, Symlinks: %t, Read-Only: %t, Hidden-Files Skipped: %t, Calculate Folder Sizes: %t\n", 
-		*verb, *symlinks, *ro, *skipHidden, *calcFolderSize)
-	fmt.Printf("Listening on http://%s:%s%s\n", *host, *port, *extraPath)
-	if err = server.ListenAndServe(); err != http.ErrServerClosed {
+	fmt.Printf("Verbose: %t, Symlinks: %t, Read-Only: %t, Hidden-Files Skipped: %t, Calculate Folder Sizes: %t, Auth: %t\n",
+		*verb, *symlinks, *ro, *skipHidden, *calcFolderSize, *auth != "")
+	fmt.Printf("Listening on %s://%s:%s%s\n", scheme, *host, *port, *extraPath)
+
+	if *tlsCert != "" {
+		err = server.ListenAndServeTLS(*tlsCert, *tlsKey)
+	} else {
+		err = server.ListenAndServe()
+	}
+	if err != http.ErrServerClosed {
 		check(err)
 	}
+}
+
+// basicAuth wraps next with HTTP basic authentication using constant-time
+// comparison. creds is in "user:pass" form.
+func basicAuth(next http.Handler, creds string) http.Handler {
+	parts := strings.SplitN(creds, ":", 2)
+	wantUser := parts[0]
+	wantPass := ""
+	if len(parts) == 2 {
+		wantPass = parts[1]
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, pass, ok := r.BasicAuth()
+		userOk := subtle.ConstantTimeCompare([]byte(user), []byte(wantUser)) == 1
+		passOk := subtle.ConstantTimeCompare([]byte(pass), []byte(wantPass)) == 1
+		if !ok || !userOk || !passOk {
+			w.Header().Set("WWW-Authenticate", `Basic realm="gossa"`)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

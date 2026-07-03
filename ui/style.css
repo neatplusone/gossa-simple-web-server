@@ -186,6 +186,30 @@ h1 > span:hover {
   margin-left: 5px;
 }
 
+.rowSelect {
+  cursor: pointer;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+#batchDel {
+  position: fixed;
+  top: 90px;
+  right: 15px;
+  z-index: 100;
+  cursor: pointer;
+  background-color: #b33939;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 3px;
+  font-size: 13px;
+  user-select: none;
+}
+
+#batchDel:hover {
+  background-color: #cd4444;
+}
+
 #toast {
   top: 7px;
   position: absolute;
